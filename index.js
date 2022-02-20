@@ -13,7 +13,7 @@ const {
 //   // console.log('It worked! Returned IP:', ip);
 // });
 
-// fetchCoordsByIP('24.80.20.109', (error, data) => {
+// fetchCoordsByIP('24.50.20.109', (error, data) => {
 //   if (error) {
 //     console.log('It did not work!', error);
 //     return;

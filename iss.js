@@ -38,56 +38,24 @@ const fetchCoordsByIP = (ip, callback) => {
   });
 };
 
-const fetchISSFlyOverTimes = (coordinates, callback) => {
-  request(
-    `http://api.open-notify.org/iss/v1/?lat=${coordinates.latitude}&lon=${coordinates.longitude}&alt=1650`,
-    (error, response, body) => {
-      if (error) {
-        callback(error, null);
-        return;
-      }
+const fetchISSFlyOverTimes = function(coords, callback) {
+  const url = `https://iss-pass.herokuapp.com/json/?lat=${coords.latitude}&lon=${coords.longitude}`;
 
-      if (response.statusCode !== 200) {
-        callback(
-          Error(
-            `Status Code ${response.statusCode} when fetching data at inputted latitude and longitude. Response: ${body}`
-          ),
-          null
-        );
-        return;
-      }
-
-      let dataObj = JSON.parse(body);
-      callback(null, dataObj.response);
-    }
-  );
-};
-
-const nextISSTimesForMyLocation = (callback) => {
-  fetchMyIP((error, data) => {
+  request(url, (error, response, body) => {
     if (error) {
-      console.log("Error finding IP address");
-      return callback(error, null);
+      callback(error, null);
+      return;
     }
-    fetchCoordsByIP(data, (error, data) => {
-      if (error) {
-        console.log("Error finding IP address");
-        return callback(error, null);
-      }
-      fetchISSFlyOverTimes(data, (error, nextPasses) => {
-        if (error) {
-          console.log("Something did not work");
-          return callback(error, null);
-        }
-        callback(null, nextPasses);
-      });
-    });
+
+    if (response.statusCode !== 200) {
+      callback(Error(`Status Code ${response.statusCode} when fetching ISS pass times: ${body}`), null);
+      return;
+    }
+
+    const passes = JSON.parse(body).response;
+    callback(null, passes);
   });
 };
 
-module.exports = {
-  fetchMyIP,
-  fetchCoordsByIP,
-  fetchISSFlyOverTimes,
-  nextISSTimesForMyLocation,
-};
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
